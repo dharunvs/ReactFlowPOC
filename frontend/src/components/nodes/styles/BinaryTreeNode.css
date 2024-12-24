@@ -1,0 +1,54 @@
+.BinaryTreeNode {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid #9a9a9a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  background-color: #171717;
+  cursor: default;
+}
+
+.BinaryTreeNode .data {
+  color: #9a9a9a;
+  font-weight: 600;
+}
+
+.BinaryTreeNode .handle-top {
+  /* display: none; */
+}
+
+.BinaryTreeNode .handle-top,
+.BinaryTreeNode .handle-left,
+.BinaryTreeNode .handle-right {
+  width: 14px;
+  height: 14px;
+  background-color: #9a9a9a;
+  position: absolute;
+  opacity: 0;
+  transition: opacity 160ms ease-in-out;
+  cursor: default;
+}
+
+.BinaryTreeNode:hover .handle-left,
+.BinaryTreeNode:hover .handle-right {
+  opacity: 1;
+}
+
+.BinaryTreeNode .handle-left {
+  top: 80%;
+  left: 10%;
+}
+
+.BinaryTreeNode .handle-right {
+  top: 80%;
+  right: 10%;
+}
+
+.react-flow__edge-path {
+  stroke: #9a9a9a !important;
+  stroke-width: 1px !important;
+}
