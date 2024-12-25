@@ -2,7 +2,12 @@ import React from "react";
 import { Handle, Position } from "@xyflow/react";
 import "./styles/BinaryTreeNode.css";
 
-function BinaryTreeNode({ data, handleNodeCreation }) {
+import { usePlayground } from "../../contexts/PlaygroundContext";
+
+function BinaryTreeNode(nodeData) {
+  const data = nodeData.data;
+  const { handleNodeCreation } = usePlayground();
+
   const handleClick = (direction) => {
     handleNodeCreation(data.id, data.position, direction);
   };

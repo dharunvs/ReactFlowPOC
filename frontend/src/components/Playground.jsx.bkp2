@@ -1,0 +1,91 @@
+import React, { useState, useCallback } from "react";
+import {
+  ReactFlow,
+  Background,
+  Controls,
+  useNodesState,
+  useEdgesState,
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+
+import BinaryTreeNode from "./nodes/BinaryTreeNode";
+import { BinaryTree, BinaryTreeNode as TreeNode } from "./BinaryTree";
+
+function Playground() {
+  const [tree] = useState(() => {
+    const rootNode = new TreeNode("1", "10", { x: 250, y: 0 });
+    const binaryTree = new BinaryTree();
+    binaryTree.root = rootNode;
+    return binaryTree;
+  });
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    tree.toReactFlowNodes()
+  );
+  const [edges, setEdges] = useEdgesState(tree.toReactFlowEdges());
+
+  const handleNodeCreation = useCallback(
+    (parentId, position, direction) => {
+      const newNode = new TreeNode(
+        `${Date.now()}`, // Unique ID
+        "", // Label
+        {
+          x: position.x + (direction === "left" ? -1 : 1) * 100,
+          y: position.y + 100,
+        }
+      );
+
+      if (tree.addNode(parentId, direction, newNode)) {
+        setNodes(tree.toReactFlowNodes());
+        setEdges(tree.toReactFlowEdges());
+      }
+    },
+    [tree, setNodes, setEdges]
+  );
+
+  const handleNodesChange = useCallback(
+    (changes) => {
+      let updated = false;
+      changes.forEach((change) => {
+        if (change.type === "position") {
+          const node = tree.findNode(tree.root, change.id);
+          if (
+            node &&
+            (node.position.x !== change.position.x ||
+              node.position.y !== change.position.y)
+          ) {
+            node.position = change.position; // Update position in the tree
+            updated = true;
+          }
+        }
+      });
+      if (updated) {
+        setNodes(tree.toReactFlowNodes());
+      }
+    },
+    [tree, setNodes]
+  );
+
+  const nodeTypes = {
+    BinaryTreeNode: (props) => (
+      <BinaryTreeNode {...props} handleNodeCreation={handleNodeCreation} />
+    ),
+  };
+
+  return (
+    <div className="Playground">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={handleNodesChange}
+        nodeTypes={nodeTypes}
+        colorMode="dark"
+      >
+        <Background />
+        <Controls />
+      </ReactFlow>
+    </div>
+  );
+}
+
+export default Playground;

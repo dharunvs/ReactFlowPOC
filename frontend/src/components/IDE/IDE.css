@@ -1,0 +1,40 @@
+.IDE {
+  position: absolute;
+  margin: 15px;
+  height: calc(100vh - 15px - 15px);
+  right: 0;
+  width: 800px;
+  z-index: 5;
+}
+
+.IDE .editor {
+  height: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.IDE .editor .header {
+  background-color: var(--dark-bg);
+  /* border-bottom: 1px solid var(--grey); */
+  /* height: 50px; */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  padding-bottom: 20px;
+}
+
+.IDE .editor .header select,
+.IDE .editor .header .playButton {
+  background-color: var(--dark-bg);
+  outline: none;
+  border: 1px solid var(--grey);
+  color: var(--light);
+  padding: 4px 10px;
+  border-radius: 5px;
+}
+
+.IDE .editor .header .playButton {
+  background-color: green;
+  border: 1px solid green;
+}

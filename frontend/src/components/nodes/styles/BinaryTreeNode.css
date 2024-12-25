@@ -17,10 +17,6 @@
   font-weight: 600;
 }
 
-.BinaryTreeNode .handle-top {
-  /* display: none; */
-}
-
 .BinaryTreeNode .handle-top,
 .BinaryTreeNode .handle-left,
 .BinaryTreeNode .handle-right {
@@ -29,13 +25,20 @@
   background-color: #9a9a9a;
   position: absolute;
   opacity: 0;
-  transition: opacity 160ms ease-in-out;
+  transition: all 160ms ease-in-out;
   cursor: default;
 }
-
+.BinaryTreeNode .handle-top {
+  opacity: 0;
+}
 .BinaryTreeNode:hover .handle-left,
 .BinaryTreeNode:hover .handle-right {
   opacity: 1;
+}
+
+.BinaryTreeNode .handle-left:hover,
+.BinaryTreeNode .handle-right:hover {
+  background-color: rgb(47, 255, 158);
 }
 
 .BinaryTreeNode .handle-left {
