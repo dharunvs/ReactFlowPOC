@@ -9,7 +9,12 @@ function BinaryTreeNode(nodeData) {
   const { handleNodeCreation } = usePlayground();
 
   const handleClick = (direction) => {
-    handleNodeCreation(data.id, data.position, direction);
+    handleNodeCreation(data.treeId, data.id, data.position, direction);
+  };
+
+  const preventDrag = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
   };
 
   return (
@@ -27,6 +32,8 @@ function BinaryTreeNode(nodeData) {
         id={`${data.id}-left`}
         position={Position.Left}
         onClick={() => handleClick("left")}
+        onMouseDown={preventDrag}
+        onPointerDown={preventDrag}
       />
       <Handle
         className="handle-right"
@@ -34,6 +41,8 @@ function BinaryTreeNode(nodeData) {
         id={`${data.id}-right`}
         position={Position.Right}
         onClick={() => handleClick("right")}
+        onMouseDown={preventDrag}
+        onPointerDown={preventDrag}
       />
     </div>
   );

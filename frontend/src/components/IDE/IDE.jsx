@@ -14,7 +14,6 @@ function IDE() {
   const monaco = useMonaco();
 
   useEffect(() => {
-    console.log(monaco);
     if (monaco) {
       monaco.editor.defineTheme("custom-theme", {
         base: "vs-dark",

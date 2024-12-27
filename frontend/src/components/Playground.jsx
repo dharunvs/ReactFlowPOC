@@ -25,32 +25,41 @@ const nodeTypes = {
 };
 
 function Playground() {
-  const [nodes, setNodes, onNodesChange] = useNodesState([
-    {
-      id: "1",
-      type: "BinaryTreeNode",
-      position: rootPosition,
-      data: {
-        id: "1",
-        label: "10",
-        position: rootPosition,
-        parent: null,
-        type: "root",
-      },
-    },
-  ]);
+  const [binaryTrees, setBinaryTrees] = useState({});
 
-  const [currentRootPosition, setCurrentRootPosition] = useState(rootPosition);
-
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  const [initialNodePositions, setInitialNodePositions] = useState({}); // Store initial positions
 
   const onConnect = useCallback(
     (connection) => setEdges((eds) => addEdge(connection, eds)),
     [setEdges]
   );
 
+  const handleBinaryTreeCreation = () => {
+    const newTreeId = uuidv4();
+    const newNodeId = uuidv4();
+    const newNode = {
+      id: newNodeId,
+      type: "BinaryTreeNode",
+      position: rootPosition,
+      data: {
+        treeId: newTreeId,
+        id: newNodeId,
+        label: "Root",
+        position: rootPosition,
+        parent: null,
+        type: "root",
+      },
+    };
+
+    setBinaryTrees((prev) => ({ ...prev, [newTreeId]: [newNodeId] }));
+    setNodes((nds) => [...nds, newNode]);
+  };
+
   const handleNodeCreation = useCallback(
-    (parentId, position, direction) => {
+    (treeId, parentId, position, direction) => {
       const isHandleOccupied = edges.some(
         (edge) =>
           edge.source === parentId &&
@@ -70,8 +79,9 @@ function Playground() {
           y: position.y + 100,
         },
         data: {
+          treeId: treeId,
           id: newNodeId,
-          label: "",
+          label: direction === "left" ? "Left" : "Right",
           position: {
             x: position.x + (direction === "left" ? -1 : 1) * minDistanceX,
             y: position.y + 100,
@@ -81,6 +91,10 @@ function Playground() {
         },
         draggable: false,
       };
+      setBinaryTrees((prev) => ({
+        ...prev,
+        [treeId]: [...prev[treeId], newNodeId],
+      }));
       setNodes((nds) => [...nds, newNode]);
 
       const newEdge = {
@@ -97,66 +111,50 @@ function Playground() {
     [edges, setNodes, setEdges]
   );
 
-  const onNodeDrag = useCallback((event, node) => {
-    setNodes((nds) =>
-      nds.map((n) => {
-        return n;
-      })
-    );
-  });
+  const onNodeDragStart = useCallback((_, draggedNode) => {
+    setInitialNodePositions((prevPositions) => ({
+      ...prevPositions,
+      [draggedNode.id]: { ...draggedNode.position },
+    }));
+  }, []);
 
   const onNodeDragStop = useCallback(
-    (_, rootNode) => {
+    (_, draggedNode) => {
+      const treeId = draggedNode.data.treeId;
+      const initialPosition = initialNodePositions[draggedNode.id];
+
+      const xDiff = draggedNode.position.x - initialPosition.x;
+      const yDiff = draggedNode.position.y - initialPosition.y;
+
       setNodes((nodes) =>
-        nodes.map((node) => {
-          return rootNode.id !== node.id
+        nodes.map((node) =>
+          draggedNode.id === node.id
             ? {
                 ...node,
-                position: node.position,
-                data: { ...node.data, position: node.position },
+                position: draggedNode.position,
+                data: { ...node.data, position: draggedNode.position },
               }
-            : node;
-        })
+            : binaryTrees[treeId].includes(node.id)
+            ? {
+                ...node,
+                position: {
+                  x: node.position.x + xDiff,
+                  y: node.position.y + yDiff,
+                },
+                data: {
+                  ...node.data,
+                  position: {
+                    x: node.position.x + xDiff,
+                    y: node.position.y + yDiff,
+                  },
+                },
+              }
+            : node
+        )
       );
     },
-    [setNodes]
+    [setNodes, initialNodePositions]
   );
-
-  // const onNodeDragStop = useCallback(
-  //   (event, rootNode) => {
-  //     console.log(currentRootPosition);
-  //     setCurrentRootPosition((prevRootPosition) => {
-  //       const xDiff = prevRootPosition.x - rootNode.position.x;
-  //       const yDiff = prevRootPosition.y - rootNode.position.y;
-
-  //       // Calculate the new root position
-  //       const newRootPosition = {
-  //         x: rootNode.position.x,
-  //         y: rootNode.position.y,
-  //       };
-
-  //       // Update node positions based on the difference
-  //       setNodes((nodes) =>
-  //         nodes.map((node) => {
-  //           const updatedPosition = {
-  //             x: node.position.x - xDiff,
-  //             y: node.position.y - yDiff,
-  //           };
-  //           return rootNode.id !== node.id
-  //             ? {
-  //                 ...node,
-  //                 position: updatedPosition,
-  //                 data: { ...node.data, position: updatedPosition },
-  //               }
-  //             : node;
-  //         })
-  //       );
-
-  //       return newRootPosition;
-  //     });
-  //   },
-  //   [setNodes]
-  // );
 
   const handleAdjustTree = () => {
     nodes.forEach((node) => {
@@ -174,14 +172,14 @@ function Playground() {
           onConnect={onConnect}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          onNodeDragStart={onNodeDragStart}
           onNodeDragStop={onNodeDragStop}
-          onNodeDrag={onNodeDrag}
           nodeTypes={nodeTypes}
         >
           <div className="PlaygroundContent">
             <div className="toolKit">
               <button>LinkedList</button>
-              <button>BinaryTree</button>
+              <button onClick={handleBinaryTreeCreation}>BinaryTree</button>
               <button>Trie</button>
               <button className="last-button">Graph</button>
               <div className="space"></div>
